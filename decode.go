@@ -562,7 +562,7 @@ func (d *Decoder) getArrayNode(node ast.Node) (ast.ArrayNode, error) {
 
 func (d *Decoder) convertValue(v reflect.Value, typ reflect.Type, src ast.Node) (reflect.Value, error) {
 	if typ.Kind() != reflect.String {
-		if !v.Type().ConvertibleTo(typ) {
+		if !convertibleTo(v, typ) {
 
 			// Special case for "strings -> floats" aka scientific notation
 			// If the destination type is a float and the source type is a string, check if we can
@@ -593,7 +593,7 @@ func (d *Decoder) convertValue(v reflect.Value, typ reflect.Type, src ast.Node) 
 	case reflect.Bool:
 		return reflect.ValueOf(fmt.Sprint(v.Bool())), nil
 	}
-	if !v.Type().ConvertibleTo(typ) {
+	if !convertibleTo(v, typ) {
 		return reflect.Zero(typ), errTypeMismatch(typ, v.Type(), src.GetToken())
 	}
 	return v.Convert(typ), nil
@@ -1646,7 +1646,7 @@ func (d *Decoder) decodeMap(ctx context.Context, dst reflect.Value, src ast.Node
 				return err
 			}
 			k = reflect.ValueOf(keyVal)
-			if k.IsValid() && k.Type().ConvertibleTo(keyType) {
+			if k.IsValid() && convertibleTo(k, keyType) {
 				k = k.Convert(keyType)
 			}
 		}
